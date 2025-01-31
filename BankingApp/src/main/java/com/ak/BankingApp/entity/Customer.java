@@ -1,23 +1,20 @@
 package com.ak.BankingApp.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "customer")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -35,5 +32,4 @@ public class Customer {
 
     @Column(name = "created_at", nullable = false, updatable = false)   
     private LocalDateTime createdAt = LocalDateTime.now();
-
 }
