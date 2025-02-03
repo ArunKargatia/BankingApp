@@ -23,6 +23,12 @@ public class Customer {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String userName;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Column(name = "phone", nullable = false, length = 15)
     private String phone;
 

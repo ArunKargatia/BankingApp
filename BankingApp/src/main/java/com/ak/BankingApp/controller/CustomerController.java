@@ -16,12 +16,6 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @PostMapping
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer){
-        Customer newCustomer = customerService.createCustomer(customer);
-        return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
-    }
-
     @GetMapping
     public ResponseEntity<?> getAllCustomer(){
         List<Customer> all = customerService.getAllCustomers();

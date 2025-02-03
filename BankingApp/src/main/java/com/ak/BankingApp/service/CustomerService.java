@@ -10,4 +10,5 @@ public interface CustomerService {
     Object getCustomerById(Long id);
     Customer updateCustomer(Long id, Customer updatedCustomer);
     void deleteCustomer(Long id);
+    String verify(Customer customer);
 }
