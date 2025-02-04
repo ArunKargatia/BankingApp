@@ -86,8 +86,16 @@ public class CustomerServiceImpl implements CustomerService {
     public String verify(Customer customer) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(customer.getUserName(), customer.getPassword()));
         if (authentication.isAuthenticated()) {
-            return JWTService.generateToken(customer.getUserName());
+
+            Customer customerFromDB = customerRepository.findByUserName(customer.getUserName());
+
+            if (customerFromDB != null) {
+                Long customerId = customerFromDB.getId();
+                return JWTService.generateToken(customer.getUserName(), customerId);
+            } else {
+                return "Customer not found.";
+            }
         }
-        return "Fail";
+        return "Authentication Failed";
     }
 }
