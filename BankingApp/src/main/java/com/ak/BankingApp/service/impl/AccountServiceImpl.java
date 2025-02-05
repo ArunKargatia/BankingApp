@@ -25,7 +25,8 @@ public class AccountServiceImpl implements AccountService {
     private JWTService jwtService;
 
     @Override
-    public Account createAccount(Long customerId, Account account) {
+    public Account createAccount(String token, Account account) {
+        Long customerId = jwtService.extractCustomerId(token);
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (customer.isPresent()){
             account.setCustomer(customer.get());
@@ -36,40 +37,41 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getAllAccounts(Long customerId) {
+    public List<Account> getAllAccounts(String token) {
+        Long customerId = jwtService.extractCustomerId(token);
         return accountRepository.findByCustomerId(customerId);
     }
 
     @Override
-    public Account getAccountById(Long id, Long customerId) {
-        Account account = accountRepository.findById(id).orElse(null);
-        if (account != null && account.getCustomer().getId().equals(customerId)){
-            return account;
+    public Account getAccountById(Long id, String token) {
+        Long customerId = jwtService.extractCustomerId(token);
+        Optional<Account> account = accountRepository.findById(id);
+        if (account.isPresent() && account.get().getCustomer().getId().equals(customerId)){
+            return account.orElse(null);
         }
         throw new RuntimeException("Account not found or now owned by customer with Id : "+customerId);
     }
 
     @Override
-    public Account updateAccount(Long id, Account updatedAccount, Long customerId) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && account.get().getCustomer().getId().equals(customerId)){
-            Account existingAccount = account.get();
-            existingAccount.setAccountNumber(updatedAccount.getAccountNumber());
-            existingAccount.setAccountType(updatedAccount.getAccountType());
-            existingAccount.setBalance(updatedAccount.getBalance());
+    public Account updateAccount(Long id, Account updatedAccount, String token) {
+        Long customerId = jwtService.extractCustomerId(token);
+        Account existingAccount = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found with Id: "+ id));
 
-            if (updatedAccount.getCustomer() != null){
-                Optional<Customer> customer = customerRepository.findById(updatedAccount.getCustomer().getId());
-                customer.ifPresent(existingAccount::setCustomer);
-            }
-            return accountRepository.save(existingAccount);
-        } else {
-            return null;
+        if (!existingAccount.getCustomer().getId().equals(customerId)) {
+            throw new RuntimeException("Unauthorized to update account ID: " + id);
         }
+
+        existingAccount.setAccountNumber(updatedAccount.getAccountNumber());
+        existingAccount.setAccountType(updatedAccount.getAccountType());
+        existingAccount.setBalance(updatedAccount.getBalance());
+
+        return accountRepository.save(existingAccount);
     }
 
     @Override
-    public void deleteAccount(Long id, Long customerId) {
+    public void deleteAccount(Long id, String token) {
+        Long customerId = jwtService.extractCustomerId(token);
         Optional<Account> account = accountRepository.findById(id);
         if (account.isPresent() && account.get().getCustomer().getId().equals(customerId)){
             accountRepository.deleteById(id);

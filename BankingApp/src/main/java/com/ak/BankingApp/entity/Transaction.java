@@ -23,11 +23,11 @@ public class Transaction {
     @Column(name = "receiver_account_number", nullable = false, length = 20)
     private String receiverAccountNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_account_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transaction_sender_account"))
     private Account senderAccount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "receiver_account_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transaction_receiver_account"))
     private Account receiverAccount;
 
@@ -38,7 +38,7 @@ public class Transaction {
     @Column(name = "transaction_type", nullable = false, length = 10)
     private TransactionType transactionType;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "created_at", nullable = false, updatable = false)
