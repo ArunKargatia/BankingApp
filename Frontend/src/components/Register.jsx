@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import backendUrl from '../BackendUrlConfig'
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -10,6 +11,8 @@ const Register = () => {
     const [phone, setPhone] = useState('');
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,6 +37,10 @@ const Register = () => {
       
             if (response.data) {
               setSuccessMessage('Registration successful! You can now sign in.');
+              setTimeout(() => {
+                navigate('/signin')
+              }, 3000)
+              
             }
         } catch (err) {
             setError('Failed to register. Please try again!');
