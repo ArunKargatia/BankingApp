@@ -12,22 +12,34 @@ const Navbar = () => {
         navigate("/signin")
     }
 
-    const showAuthButtons = location.pathname !== "/signin" && location.pathname !== "/register" && location.pathname !== "/";
+    const showAuthButtons = 
+      location.pathname !== "/signin" && 
+      location.pathname !== "/register" && 
+      location.pathname !== "/";
 
-    return (
+      return (
         <nav className="bg-white shadow-md p-4">
           <div className="flex justify-between items-center container mx-auto">
             <div className="flex items-center space-x-6">
-              <Link to="/" className="text-blue-600 font-bold text-xl hover:text-blue-800 transition duration-300">
+              <Link
+                to="/"
+                className="text-blue-600 font-bold text-xl hover:text-blue-800 transition duration-300"
+              >
                 Banking App
               </Link>
     
               {isAuthenticated && (
                 <>
-                  <Link to="/accounts" className="text-gray-800 hover:text-blue-600 transition duration-300">
+                  <Link
+                    to="/accounts"
+                    className="text-gray-800 hover:text-blue-600 transition duration-300"
+                  >
                     Accounts
                   </Link>
-                  <Link to="/transactions" className="text-gray-800 hover:text-blue-600 transition duration-300">
+                  <Link
+                    to="/transactions"
+                    className="text-gray-800 hover:text-blue-600 transition duration-300"
+                  >
                     Transactions
                   </Link>
                 </>

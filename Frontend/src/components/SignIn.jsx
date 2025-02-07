@@ -30,7 +30,7 @@ const SignIn = () => {
                 setSuccessMessage("You have successfully signed in! Redirecting...")
                 setTimeout(() => {
                   navigate("/accounts")
-                }, 1500)
+                }, 1000)
             }
         } catch (err) {
             setError("Invalid username or password.")
