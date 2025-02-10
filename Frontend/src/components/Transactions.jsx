@@ -32,6 +32,8 @@ const Transactions = () => {
                     txn.senderAccountNumber === accountNumber || 
                     txn.receiverAccountNumber === accountNumber
                 )
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                
                 setTransactions(filteredTransactions)
             } catch (err) {
                 setError("Failer to fetch transactions")
@@ -68,42 +70,38 @@ const Transactions = () => {
             <p className="text-center">No transactions found.</p>
           ) : (
             <ul>
-              {transactions.map((txn) => (
-                <li
-                  key={txn.id}
-                  className="cursor-pointer bg-gray-100 p-4 mb-2 rounded-md shadow-sm flex justify-between items-center"
-                >
-                  <div>
-                    <p className="font-semibold">
-                      From: {txn.senderAccountNumber}
-                    </p>
-                    <p className="font-semibold">
-                      To: {txn.receiverAccountNumber}
-                    </p>
-                    <p className="text-sm">{txn.transactionType}</p>
-                    <p className="text-sm">{txn.description}</p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(txn.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <span
-                      className={`font-semibold text-lg ${
-                        txn.amount < 0 ? "text-red-500" : "text-green-500"
-                      }`}
-                    >
-                      {txn.amount < 0
-                        ? `- ₹${Math.abs(txn.amount)}`
-                        : `+ ₹${txn.amount}`}
-                    </span>
-                  </div>
-                </li>
-              ))}
+              {transactions.map((txn) => {
+                const isSender = txn.senderAccountNumber === accountNumber;
+                return (
+                  <li
+                    key={txn.id}
+                    className="cursor-pointer bg-gray-100 p-4 mb-2 rounded-md shadow-sm flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-semibold">From: {txn.senderAccountNumber}</p>
+                      <p className="font-semibold">To: {txn.receiverAccountNumber}</p>
+                      <p className="text-sm">{txn.transactionType}</p>
+                      <p className="text-sm">{txn.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(txn.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <span
+                        className={`font-semibold text-lg ${
+                          isSender ? "text-red-500" : "text-green-500"
+                        }`}
+                      >
+                        {isSender ? `- ₹${txn.amount}` : `+ ₹${txn.amount}`}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
       </div>
     );
   };
-  
   export default Transactions;

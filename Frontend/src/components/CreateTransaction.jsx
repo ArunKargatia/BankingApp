@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import backendUrl from "../BackendUrlConfig";
 import { useAuth } from "../AuthContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const CreateTransaction = ({ onSuccess }) => {
+const CreateTransaction = () => {
   const { token } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const accountNumber = location.state?.accountNumber || "";
 
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ const CreateTransaction = ({ onSuccess }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     if(!accountNumber) {   
@@ -38,13 +40,21 @@ const CreateTransaction = ({ onSuccess }) => {
     }
 
     setLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       await backendUrl.post("/transaction", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("Transaction successful!");
+      setSuccess("Transaction successful!");
+
+      setTimeout(() => {
+        alert("Transaction successful!")
+        navigate("/transactions", { state: { accountNumber } });
+        }, 100);
+
       setFormData({
         senderAccountNumber: accountNumber,
         receiverAccountNumber: "",
@@ -52,10 +62,10 @@ const CreateTransaction = ({ onSuccess }) => {
         transactionType: "TRANSFER",
         description: "",
       });
-
-      onSuccess(); 
     } catch (err) {
-      setError("Transaction failed.");
+        console.error("Transaction Error:", err.response?.data || err.message);
+        setError("Transaction failed.");
+        setSuccess(null);
     } finally {
       setLoading(false);
     }
@@ -66,6 +76,7 @@ const CreateTransaction = ({ onSuccess }) => {
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg">
         <h3 className="text-2xl font-semibold text-center mb-6">Make a Transaction</h3>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {success && <p className="text-green-500 text-center mb-4">{success}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm mb-1">From Account</label>
@@ -138,7 +149,5 @@ const CreateTransaction = ({ onSuccess }) => {
     </div>
   );
 };
-
-
 
 export default CreateTransaction;
