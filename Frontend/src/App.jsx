@@ -8,6 +8,7 @@ import Transactions from "./components/Transactions"
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import CreateAccount from "./components/CreateAccount";
+import CreateTransaction from "./components/CreateTransaction";
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -28,6 +29,7 @@ function App() {
           <Route path="/createAccount" element={<ProtectedRoute element={<CreateAccount />} />} />
           <Route path="/editAccount/:id" element={<ProtectedRoute element={<CreateAccount />} />} />
           <Route path="/transactions" element={<ProtectedRoute element={<Transactions />} />} />
+          <Route path="/createTransaction" element={<ProtectedRoute element={<CreateTransaction />} />} />
           {/* <Route path="/health-check" element={<HealthCheck />} /> */}
         </Routes>
       </Router>

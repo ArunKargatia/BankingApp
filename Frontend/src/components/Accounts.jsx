@@ -40,7 +40,9 @@ const Accounts = () => {
     }, [token, isAuthenticated, navigate])
 
     const handleDelete = async (id) => {
-        if(!window.confirm("Are you sure ypu want to delte this account?"))
+        if(!window.confirm("Are you sure ypu want to delte this account?")){
+            return;
+        }
 
         try {
             await backendUrl.delete(`/account/id/${id}`, {
@@ -49,10 +51,14 @@ const Accounts = () => {
 
             setAccounts(accounts.filter(account => account.id !== id));
 
-            alert("Account delted successfully!")
+            alert("Account deleted successfully!")
         } catch (err) {
             alert("Failed to delete account.")
         }
+    }
+
+    const handleAccountClick = (account) => {
+        navigate("/transactions", {state: {accountNumber: account.accountNumber}})
     }
 
     return (
@@ -62,7 +68,6 @@ const Accounts = () => {
 
                 {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-                {/* Create Account Button */}
                 <div className="text-center mb-6">
                     <button
                         onClick={() => navigate("/createAccount")}
@@ -72,7 +77,6 @@ const Accounts = () => {
                     </button>
                 </div>
 
-                {/* Accounts List */}
                 {loading ? (
                     <p className="text-center">Loading your accounts...</p>
                 ) : accounts.length === 0 ? (
@@ -80,7 +84,11 @@ const Accounts = () => {
                 ) : (
                     <ul>
                         {accounts.map((account) => (
-                            <li key={account.id} className="bg-gray-100 p-4 mb-2 rounded-md shadow-sm flex justify-between items-center">
+                            <li 
+                                key={account.id} 
+                                onClick={() => handleAccountClick(account)} 
+                                className="cursor-pointer bg-gray-100 p-4 mb-2 rounded-md shadow-sm flex justify-between items-center"
+                            >
                                 <div>
                                     <p className="font-semibold">Account Number: {account.accountNumber}</p>
                                     <p className="text-sm">Account Type: {account.accountType}</p>
@@ -90,13 +98,19 @@ const Accounts = () => {
                                 </div>
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => navigate(`/editAccount/${account.id}`)}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering account click
+                                            navigate(`/editAccount/${account.id}`);
+                                        }}
                                         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
                                     >
                                         Edit
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(account.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(account.id);
+                                        }}
                                         className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
                                     >
                                         Delete
@@ -110,6 +124,5 @@ const Accounts = () => {
         </div>
     );
 };
-
     
 export default Accounts;
