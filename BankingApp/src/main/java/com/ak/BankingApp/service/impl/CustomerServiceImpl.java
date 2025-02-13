@@ -64,6 +64,8 @@ public class CustomerServiceImpl implements CustomerService {
             existingCustomer.setUserName(updatedCustomer.getUserName());
             existingCustomer.setPassword(passwordEncoder.encode(updatedCustomer.getPassword()));
             existingCustomer.setPhone(updatedCustomer.getPhone());
+            existingCustomer.setAddress(updatedCustomer.getAddress());
+            existingCustomer.setDateOfBirth(updatedCustomer.getDateOfBirth());
 
             if (updatedCustomer.getAccounts() != null) {
                 for (Account account : updatedCustomer.getAccounts()) {
@@ -74,6 +76,16 @@ public class CustomerServiceImpl implements CustomerService {
             return customerRepository.save(existingCustomer);
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public void updateProfilePicture(Long id, String profilePicturePath) {
+        Optional<Customer> customer = customerRepository.findById(id);
+        if (customer.isPresent()) {
+            Customer existingCustomer = customer.get();
+            existingCustomer.setProfilePicture(profilePicturePath);
+            customerRepository.save(existingCustomer);
         }
     }
 

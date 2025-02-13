@@ -11,4 +11,5 @@ public interface CustomerService {
     Customer updateCustomer(Long id, Customer updatedCustomer);
     void deleteCustomer(Long id);
     String verify(Customer customer);
+    void updateProfilePicture(Long id, String profilePicturePath);
 }

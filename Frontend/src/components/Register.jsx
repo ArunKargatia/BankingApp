@@ -9,10 +9,17 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [phone, setPhone] = useState('');
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [address, setAddress] = useState('');
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
     const navigate = useNavigate();
+
+    const handleProfilePictureChange = (e) => {
+      setProfilePicture(e.target.files[0]);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,17 +37,29 @@ const Register = () => {
             userName,
             password,
             phone,
+            dateOfBirth,
+            address
+        }
+
+        const formData = new FormData();
+        formData.append('customer', new Blob([JSON.stringify(customerData)], { type: 'application/json' }));
+
+        if (profilePicture) {
+            formData.append('file', profilePicture);
         }
 
         try {
-            const response = await backendUrl.post('/public/register', customerData);
+            const response = await backendUrl.post('/public/register', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
       
             if (response.data) {
               setSuccessMessage('Registration successful! You can now sign in.');
               setTimeout(() => {
                 navigate('/signin')
               }, 3000)
-              
             }
         } catch (err) {
             setError('Failed to register. Please try again!');
@@ -49,96 +68,130 @@ const Register = () => {
     }
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="flex justify-center items-center h-screen bg-gray-100">
           <div className="bg-white p-6 rounded-lg shadow-md w-96">
-            <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
-    
-            {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-            {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
-    
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <div className="mb-4">
-                <label htmlFor="userName" className="block text-sm font-medium text-gray-700">Username</label>
-                <input
-                  type="text"
-                  id="userName"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <div className="mb-4">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <div className="mb-4">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <div className="mb-4">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
-                <input
-                  type="text"
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-    
-              <button
-                type="submit"
-                className="w-full py-2 px-4 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Register
-              </button>
-            </form>
+              <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
+
+              {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+              {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
+
+              <form onSubmit={handleSubmit}>
+                  <div className="mb-4">
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                      <input
+                          type="text"
+                          id="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                      <input
+                          type="email"
+                          id="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="userName" className="block text-sm font-medium text-gray-700">Username</label>
+                      <input
+                          type="text"
+                          id="userName"
+                          value={userName}
+                          onChange={(e) => setUserName(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                      <input
+                          type="password"
+                          id="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                      <input
+                          type="password"
+                          id="confirmPassword"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+                      <input
+                          type="text"
+                          id="phone"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                      <input
+                          type="date"
+                          id="dateOfBirth"
+                          value={dateOfBirth}
+                          onChange={(e) => setDateOfBirth(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+                      <input
+                          type="text"
+                          id="address"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
+
+                  <div className="mb-4">
+                      <label htmlFor="profilePicture" className="block text-sm font-medium text-gray-700">Profile Picture</label>
+                      <input
+                          type="file"
+                          id="profilePicture"
+                          onChange={handleProfilePictureChange}
+                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                  </div>
+
+                  <button
+                      type="submit"
+                      className="w-full py-2 px-4 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                      Register
+                  </button>
+              </form>
           </div>
-        </div>
-      );
-}
+      </div>
+  );
+};
 
 export default Register
