@@ -59,13 +59,14 @@ public class CustomerServiceImpl implements CustomerService {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) {
             Customer existingCustomer = customer.get();
-            existingCustomer.setName(updatedCustomer.getName());
-            existingCustomer.setEmail(updatedCustomer.getEmail());
-            existingCustomer.setUserName(updatedCustomer.getUserName());
-            existingCustomer.setPassword(passwordEncoder.encode(updatedCustomer.getPassword()));
-            existingCustomer.setPhone(updatedCustomer.getPhone());
-            existingCustomer.setAddress(updatedCustomer.getAddress());
-            existingCustomer.setDateOfBirth(updatedCustomer.getDateOfBirth());
+
+            if (updatedCustomer.getName() != null) existingCustomer.setName(updatedCustomer.getName());
+            if (updatedCustomer.getEmail() != null) existingCustomer.setEmail(updatedCustomer.getEmail());
+            if (updatedCustomer.getUserName() != null) existingCustomer.setUserName(updatedCustomer.getUserName());
+            if (updatedCustomer.getPassword() != null) existingCustomer.setPassword(passwordEncoder.encode(updatedCustomer.getPassword()));
+            if (updatedCustomer.getPhone() != null) existingCustomer.setPhone(updatedCustomer.getPhone());
+            if (updatedCustomer.getAddress() != null) existingCustomer.setAddress(updatedCustomer.getAddress());
+            if (updatedCustomer.getDateOfBirth() != null) existingCustomer.setDateOfBirth(updatedCustomer.getDateOfBirth());
 
             if (updatedCustomer.getAccounts() != null) {
                 for (Account account : updatedCustomer.getAccounts()) {

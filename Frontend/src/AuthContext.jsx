@@ -23,11 +23,15 @@ export const AuthProvider = ({children}) => {
     }
 
     const getCustomerIdFromToken = () => {
-        if (!token) return null;
+        if (!token) {
+            console.log("Token is missing");
+            return null;
+        }
         try {
             const decoded = jwtDecode(token);
-            return decoded.id || null;
+            return decoded.customerId || null;
         } catch (error) {
+            console.error("Error decoding token:", error);
             return null;
         }
     };

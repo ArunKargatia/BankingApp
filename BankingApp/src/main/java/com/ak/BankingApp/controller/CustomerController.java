@@ -4,13 +4,15 @@ import com.ak.BankingApp.entity.Customer;
 import com.ak.BankingApp.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -32,28 +34,55 @@ public class CustomerController {
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable Long id){
         try {
-            Object customer = customerService.getCustomerById(id);
+            Customer customer = customerService.getCustomerById(id);
+            if (customer == null){
+                return new ResponseEntity<>("Customer not found.", HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(customer, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/profile_pictures/{fileName}")
+    public ResponseEntity<String> getProfilePictureUrl(@PathVariable String fileName) {
+        try{
+            Path filePath = Paths.get(uploadDir).resolve(fileName).normalize();
+            UrlResource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists() || !resource.isReadable()){
+                return ResponseEntity.notFound().build();
+            }
+
+            String imageUrl = "http://localhost:8080/profile_pictures/" + fileName;
+
+            return ResponseEntity.ok(imageUrl);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @PutMapping("id/{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable Long id,
-                                            @RequestPart Customer updatedCustomer,
-                                            @RequestPart MultipartFile file){
+                                            @RequestPart("updatedCustomer") Customer updatedCustomer,
+                                            @RequestPart(value = "file", required = false) MultipartFile file){
         try {
             Customer customer = customerService.updateCustomer(id, updatedCustomer);
 
             if (file != null && !file.isEmpty()) {
-                String originalFileName = file.getOriginalFilename();
-//                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                String fileName = id + "_" + originalFileName;
 
                 File dir = new File(uploadDir);
                 if (!dir.exists()) dir.mkdirs();
 
+                if (customer.getProfilePicture() != null) {
+                    File oldFile = new File(customer.getProfilePicture());
+                    if (oldFile.exists()) {
+                        oldFile.delete();
+                    }
+                }
+
+                String fileName = id + "_" + file.getOriginalFilename();
                 File destinationFile = new File(uploadDir + File.separator + fileName);
                 file.transferTo(destinationFile);
 
