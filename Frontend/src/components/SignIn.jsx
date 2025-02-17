@@ -10,7 +10,7 @@ const SignIn = () => {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("")
     const navigate = useNavigate();
-    const { login } = useAuth()
+    const { login, isDarkMode } = useAuth()
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,7 +23,7 @@ const SignIn = () => {
                 password
             })
             const token = response.data
-            console.log("token : ", token);
+            // console.log("token : ", token);
 
             if (token) {
                 login(token)
@@ -38,56 +38,111 @@ const SignIn = () => {
     }
 
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-          <div className="bg-white p-6 rounded-lg shadow-md w-96">
-              <h2 className="text-2xl font-bold text-center mb-4">Sign In</h2>
-              {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-              {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
-              <form onSubmit={handleSubmit}>
-                  <div className="mb-4">
-                      <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                          Username
-                      </label>
-                      <input
-                          type="text"
-                          id="username"
-                          value={userName}
-                          onChange={(e) => setUserName(e.target.value)}
-                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                      />
-                  </div>
-                  <div className="mb-4">
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                          Password
-                      </label>
-                      <input
-                          type="password"
-                          id="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                      />
-                  </div>
-                  <button
-                      type="submit"
-                      className="w-full py-2 px-4 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div
+          className={`${
+            isDarkMode ? "bg-gray-900" : "bg-gray-100"
+          } flex justify-center items-center h-screen`}
+        >
+            <div
+              className={`${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+              } p-6 rounded-lg shadow-md w-96`}
+            >
+                <h2
+                  className={`${
+                    isDarkMode ? "text-white" : "text-gray-800"
+                  } text-2xl font-bold text-center mb-4`}
+                >
+                  Sign In
+                </h2>
+                {error && (
+                  <p
+                    className={`${
+                      isDarkMode ? "text-red-400" : "text-red-600"
+                    } text-center mb-4`}
                   >
-                      Sign In
-                  </button>
-              </form>
-              <div className="mt-4 text-center">
-                  <p className="text-sm text-gray-600">
-                      Don't have an account?{' '}
-                      <Link to="/register" className="text-blue-600 hover:underline">
-                          Register here
-                      </Link>
+                    {error}
                   </p>
-              </div>
-          </div>
-      </div>
-  );
-}
+                )}
+                {successMessage && (
+                  <p
+                    className={`${
+                      isDarkMode ? "text-green-400" : "text-green-600"
+                    } text-center mb-4`}
+                  >
+                    {successMessage}
+                  </p>
+                )}
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label
+                          htmlFor="username"
+                          className={`${
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                          } block text-sm font-medium`}
+                        >
+                            Username
+                        </label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            className={`${
+                              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-50"
+                            } w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label
+                          htmlFor="password"
+                          className={`${
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                          } block text-sm font-medium`}
+                        >
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`${
+                              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-50"
+                            } w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className={`${
+                          isDarkMode ? "bg-blue-500" : "bg-blue-600"
+                        } w-full py-2 px-4 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    >
+                        Sign In
+                    </button>
+                </form>
+                <div className="mt-4 text-center">
+                    <p
+                      className={`${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      } text-sm`}
+                    >
+                        Don't have an account?{' '}
+                        <Link
+                          to="/register"
+                          className={`${
+                            isDarkMode ? "text-blue-400" : "text-blue-600"
+                          } hover:underline`}
+                        >
+                            Register here
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+  }
 
 export default SignIn

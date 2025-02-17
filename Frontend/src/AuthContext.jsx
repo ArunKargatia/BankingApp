@@ -5,8 +5,32 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
 
-    const [token, setToken] = useState(localStorage.getItem('token') || null)
+    const [token, setToken] = useState(sessionStorage.getItem('token') || null)
     const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useEffect(() => {
+        const savedMode = sessionStorage.getItem("darkMode");
+        if (savedMode === "true") {
+          setIsDarkMode(true);
+          document.body.classList.add("dark");
+        }
+      }, []);
+    
+      const toggleDarkMode = () => {
+        setIsDarkMode((prevMode) => {
+          const newMode = !prevMode;
+          if (newMode) {
+            document.body.classList.add("dark");
+            sessionStorage.setItem("darkMode", "true");
+          } else {
+            document.body.classList.remove("dark");
+            sessionStorage.setItem("darkMode", "false");
+          }
+          return newMode;
+        });
+      };
 
     useEffect(() => {
         if (token && !isTokenExpired(token)) {
@@ -16,11 +40,26 @@ export const AuthProvider = ({children}) => {
         }
     }, [token])
 
+    useEffect(() => {
+        const checkTokenExpiration = () => {
+            if (token && isTokenExpired(token)) {
+                logout(); 
+            }
+        };
+
+        const interval = setInterval(checkTokenExpiration, 60 * 1000); 
+        return () => clearInterval(interval); 
+    }, [token]);
+
     const isTokenExpired = (token) => {
-        if (!token) return true;
-        const decoded = jwtDecode(token);
-        return decoded.exp * 1000 < Date.now();
-    }
+        try {
+            const decoded = jwtDecode(token);
+            return decoded.exp * 1000 < Date.now(); 
+        } catch (error) {
+            console.error("Invalid token:", error);
+            return true; 
+        }
+    };
 
     const getCustomerIdFromToken = () => {
         if (!token) {
@@ -37,19 +76,30 @@ export const AuthProvider = ({children}) => {
     };
 
     const login = (newToken) => {
-        setToken(newToken)
-        localStorage.setItem('token', newToken)
-        setIsAuthenticated(true)
-    }
+        setToken(newToken);
+        sessionStorage.setItem('token', newToken);
+        setIsAuthenticated(true);
+    };
 
     const logout = () => {
-        setToken(null)
-        localStorage.removeItem('token')
-        setIsAuthenticated(false)
-    }
+        setToken(null);
+        sessionStorage.removeItem('token'); 
+        setIsAuthenticated(false);
+    };
+
 
     return (
-        <AuthContext.Provider value={{token, isAuthenticated, login, logout, getCustomerIdFromToken}}>
+        <AuthContext.Provider 
+            value={{
+                token, 
+                isAuthenticated, 
+                login, 
+                logout, 
+                getCustomerIdFromToken,
+                isDarkMode,
+                toggleDarkMode,
+                }}
+        >
             {children}
         </AuthContext.Provider>
     )

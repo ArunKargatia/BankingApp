@@ -11,9 +11,9 @@ import CreateAccount from "./components/CreateAccount";
 import CreateTransaction from "./components/CreateTransaction";
 import CustomerProfile from "./components/CustomerProfile";
 
-const ProtectedRoute = ({ element }) => {
+const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? element : <Navigate to="/signin" />
+  return isAuthenticated ? children : <Navigate to="/" />
 }
 
 function App() {
@@ -26,13 +26,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/accounts" element={<ProtectedRoute element={<Accounts />} />} />
-          <Route path="/createAccount" element={<ProtectedRoute element={<CreateAccount />} />} />
-          <Route path="/editAccount/:id" element={<ProtectedRoute element={<CreateAccount />} />} />
-          <Route path="/transactions" element={<ProtectedRoute element={<Transactions />} />} />
-          <Route path="/createTransaction" element={<ProtectedRoute element={<CreateTransaction />} />} />
-          <Route path="/profile" element={<ProtectedRoute element={<CustomerProfile />} />} />
-          {/* <Route path="/health-check" element={<HealthCheck />} /> */}
+          <Route path="/accounts" element={<ProtectedRoute><Accounts /></ProtectedRoute>} />
+          <Route path="/createAccount" element={<ProtectedRoute><CreateAccount /></ProtectedRoute>} />
+          <Route path="/editAccount/:id" element={<ProtectedRoute><CreateAccount /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+          <Route path="/createTransaction" element={<ProtectedRoute><CreateTransaction /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><CustomerProfile /></ProtectedRoute>} />
+          <Route path="/health-check" element={<HealthCheck />} />
         </Routes>
       </Router>
     </AuthProvider>

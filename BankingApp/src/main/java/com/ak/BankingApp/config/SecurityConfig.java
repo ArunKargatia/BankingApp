@@ -33,6 +33,7 @@ public class SecurityConfig {
                     .csrf(customizer -> customizer.disable())
                     .authorizeHttpRequests(request -> request
                             .requestMatchers("/public/**").permitAll()
+                            .requestMatchers("/profile_pictures/**").permitAll()
                             .anyRequest().authenticated())
                     .httpBasic(Customizer.withDefaults())
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

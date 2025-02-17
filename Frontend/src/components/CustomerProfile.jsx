@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaPen } from 'react-icons/fa';
 
 const CustomerProfile = () => {
-    const { token } = useAuth();
+    const { token, isDarkMode } = useAuth();
     const { getCustomerIdFromToken, isAuthenticated } = useAuth();
     const customerId = getCustomerIdFromToken();
     const navigate = useNavigate();
@@ -59,7 +59,6 @@ const CustomerProfile = () => {
             navigate('/signin');
             return;
         }
-
 
         try {
             const response = await backendUrl.get(`/customer/id/${customerId}`, {
@@ -136,12 +135,26 @@ const CustomerProfile = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
-            <div className="bg-white p-6 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold text-center mb-4">Edit Profile</h2>
+        <div
+            className={`${
+                isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
+            } flex justify-center items-center h-screen`}
+        >
+            <div
+                className={`${
+                    isDarkMode ? "bg-gray-800" : "bg-white"
+                } p-6 rounded-lg shadow-md w-96`}
+            >
+                <h2
+                    className={`${
+                        isDarkMode ? "text-white" : "text-gray-800"
+                    } text-2xl font-bold text-center mb-4`}
+                >
+                    Edit Profile
+                </h2>
 
-                {error && <p className="text-red-600 text-center mb-4">{error}</p>}
-                {successMessage && <p className="text-green-600 text-center mb-4">{successMessage}</p>}
+                {error && <p className={`${isDarkMode ? "text-red-400" : "text-red-600"} text-center mb-4`}>{error}</p>}
+                {successMessage && <p className={`${isDarkMode ? "text-green-400" : "text-green-600"} text-center mb-4`}>{successMessage}</p>}
 
                 <form onSubmit={handleSubmit}>
                     {/* Profile Picture */}
@@ -167,79 +180,79 @@ const CustomerProfile = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                        <label htmlFor="name" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Name</label>
                         <input
                             type="text"
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                        <label htmlFor="email" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Email</label>
                         <input
                             type="email"
                             id="email"
                             value={email}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed`}
                             disabled
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="userName" className="block text-sm font-medium text-gray-700">Username</label>
+                        <label htmlFor="userName" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Username</label>
                         <input
                             type="text"
                             id="userName"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+                        <label htmlFor="phone" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Phone</label>
                         <input
                             type="text"
                             id="phone"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                        <label htmlFor="dateOfBirth" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Date of Birth</label>
                         <input
                             type="date"
                             id="dateOfBirth"
                             value={dateOfBirth}
                             onChange={(e) => setDateOfBirth(e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+                        <label htmlFor="address" className={`${isDarkMode ? "text-gray-300" : "text-gray-700"} block text-sm font-medium`}>Address</label>
                         <input
                             type="text"
                             id="address"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"} w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full py-2 px-4 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`${isDarkMode ? "bg-blue-500" : "bg-blue-600"} w-full py-2 px-4 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     >
                         Update Profile
                     </button>
