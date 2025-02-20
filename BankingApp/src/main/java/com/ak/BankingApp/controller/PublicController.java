@@ -37,8 +37,6 @@ public class PublicController {
             try {
                 String originalFileName = file.getOriginalFilename();
 
-//                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-
                 String fileName = newCustomer.getId() + "_" + originalFileName;
 
                 File dir = new File(uploadDir);
