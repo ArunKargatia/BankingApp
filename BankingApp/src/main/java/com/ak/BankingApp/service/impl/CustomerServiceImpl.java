@@ -31,6 +31,9 @@ public class CustomerServiceImpl implements CustomerService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private JWTService jwtService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Override
@@ -104,7 +107,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             if (customerFromDB != null) {
                 Long customerId = customerFromDB.getId();
-                return JWTService.generateToken(customer.getUserName(), customerId);
+                return jwtService.generateToken(customer.getUserName(), customerId);
             } else {
                 return "Customer not found.";
             }
