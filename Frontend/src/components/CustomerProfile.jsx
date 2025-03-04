@@ -30,28 +30,6 @@ const CustomerProfile = () => {
         }
     }, [isAuthenticated, customerId, navigate]);
 
-    const fetchProfilePicture = async (filePath) => {
-        if (!filePath) return;
-    
-        const fileName = filePath.split('\\').pop().split('/').pop();  
-    
-        const url = `/customer/profile_pictures/${fileName}`; 
-    
-        try {
-            const response = await backendUrl.get(url, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            
-            const imageUrl = response.data; 
-            
-            setProfilePicture(imageUrl);
-        } catch (error) {
-            console.error("Error fetching profile picture.", error);
-        }
-    };
-
     const fetchUserProfile = async () => {
         if (!token) {
             console.error("No token available!");
@@ -76,7 +54,8 @@ const CustomerProfile = () => {
             setAddress(address);
 
             if (profilePicture) {  
-                fetchProfilePicture(profilePicture);    
+                setProfilePicture(profilePicture);
+                setProfilePicturePreview(profilePicture);    
             }
 
         } catch (err) {
@@ -87,8 +66,10 @@ const CustomerProfile = () => {
 
     const handleProfilePictureChange = (e) => {
         const newProfilePicture = e.target.files[0];
-        setProfilePicture(newProfilePicture);
+        if (newProfilePicture) {
         setProfilePicturePreview(URL.createObjectURL(newProfilePicture));
+        setProfilePicture(newProfilePicture);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -96,37 +77,34 @@ const CustomerProfile = () => {
         setError(null);
         setSuccessMessage('');
 
-        const updatedData = {
-            name,
-            email,
-            userName,
-            phone,
-            dateOfBirth,
-            address
-        };
-
-        const formData = new FormData();
-        formData.append('updatedCustomer', new Blob([JSON.stringify(updatedData)], { type: "application/json" }));
-
-        if (profilePicture instanceof File) {  
-            formData.append('file', profilePicture);
-        }
-
         try {
-            const response = await backendUrl.put(`/customer/id/${customerId}`, formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
+            let uploadedImageUrl = profilePicture;
+            if (profilePicture instanceof File) {
+                const formData = new FormData();
+                formData.append('file', profilePicture);
+                const uploadResponse = await backendUrl.post('/customer/upload-profile-picture', formData, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+                });
+                uploadedImageUrl = uploadResponse.data.split(': ')[1];
+            }
+
+            const updatedData = {
+                name,
+                email,
+                userName,
+                phone,
+                dateOfBirth,
+                address,
+                profilePicture: uploadedImageUrl,
+            };
+
+            const response = await backendUrl.put(`/customer/id/${customerId}`, updatedData, {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
             });
 
             if (response.data) {
                 setSuccessMessage('Profile updated successfully!');
-                if (response.data.profilePicture) {
-                    fetchProfilePicture(response.data.profilePicture);
-                }
-                setTimeout(() => {
-                    navigate(`/profile`);
-                }, 3000);
+                setTimeout(() => navigate(`/profile`), 1500);
             }
         } catch (err) {
             setError('Failed to update profile. Please try again!');
@@ -160,7 +138,7 @@ const CustomerProfile = () => {
                     {/* Profile Picture */}
                     <div className="flex flex-col items-center mb-4 relative">
                         <img
-                            src={profilePicture || "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-female-user-profile-vector-illustration-isolated-background-women-profile-sign-business-concept_157943-38866.jpg?semt=ais_hybrid"}
+                            src={profilePicturePreview || profilePicture || "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-female-user-profile-vector-illustration-isolated-background-women-profile-sign-business-concept_157943-38866.jpg?semt=ais_hybrid"}
                             alt="Profile"
                             className="w-24 h-24 rounded-full border border-gray-300 mb-2"
                         />

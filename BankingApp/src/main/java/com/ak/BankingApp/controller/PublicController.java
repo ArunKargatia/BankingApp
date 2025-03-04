@@ -19,40 +19,14 @@ public class PublicController {
     @Autowired
     private CustomerService customerService;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     @GetMapping("/health-check")
     public String healthCheck(){
         return "Ok";
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Customer> register(@RequestPart("customer") Customer customer,
-                                             @RequestPart("file") MultipartFile file){
-
+    public ResponseEntity<Customer> register(@RequestBody Customer customer){
         Customer newCustomer = customerService.createCustomer(customer);
-
-        if (file != null && !file.isEmpty()) {
-            try {
-                String originalFileName = file.getOriginalFilename();
-
-                String fileName = newCustomer.getId() + "_" + originalFileName;
-
-                File dir = new File(uploadDir);
-                if (!dir.exists()) dir.mkdirs();
-
-                File destinationFile = new File(uploadDir + File.separator + fileName);
-                file.transferTo(destinationFile);
-
-                String filePath = uploadDir + File.separator + fileName;
-                newCustomer.setProfilePicture(filePath);
-                customerService.updateProfilePicture(newCustomer.getId(), filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
         return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
     }
 

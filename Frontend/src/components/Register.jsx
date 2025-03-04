@@ -10,8 +10,6 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [phone, setPhone] = useState('');
-    const [profilePicture, setProfilePicture] = useState(null);
-    const [profilePicturePreview, setProfilePicturePreview] = useState(null);
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [address, setAddress] = useState('');
     const [error, setError] = useState(null);
@@ -19,14 +17,6 @@ const Register = () => {
 
     const navigate = useNavigate();
     const { isDarkMode } = useAuth();
-
-    const handleProfilePictureChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setProfilePicture(file);
-            setProfilePicturePreview(URL.createObjectURL(file));
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,17 +38,10 @@ const Register = () => {
             address
         }
 
-        const formData = new FormData();
-        formData.append('customer', new Blob([JSON.stringify(customerData)], { type: 'application/json' }));
-
-        if (profilePicture) {
-            formData.append('file', profilePicture);
-        }
-
         try {
-            const response = await backendUrl.post('/public/register', formData, {
+            const response = await backendUrl.post('/public/register', customerData, {
               headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'application/json'
               }
             });
       
@@ -66,7 +49,7 @@ const Register = () => {
               setSuccessMessage('Registration successful! You can now sign in.');
               setTimeout(() => {
                 navigate('/signin')
-              }, 3000)
+              }, 1500)
             }
         } catch (err) {
             setError('Failed to register. Please try again!');
@@ -86,16 +69,6 @@ const Register = () => {
                 } text-2xl font-bold text-center mb-4`}>
                     Register
                 </h2>
-
-                {profilePicturePreview && (
-                    <div className="flex justify-center mb-4">
-                        <img
-                            src={profilePicturePreview}
-                            alt="Profile Preview"
-                            className="w-24 h-24 rounded-full object-cover"
-                        />
-                    </div>
-                )}
 
                 {error && <p className={`${
                     isDarkMode ? "text-red-400" : "text-red-600"
@@ -246,22 +219,6 @@ const Register = () => {
                                 isDarkMode ? "bg-gray-700 text-white" : "bg-gray-50"
                             } w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             required
-                        />
-                    </div>
-
-                    <div className="mb-4">
-                        <label htmlFor="profilePicture" className={`${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                        } block text-sm font-medium`}>
-                            Profile Picture
-                        </label>
-                        <input
-                            type="file"
-                            id="profilePicture"
-                            onChange={handleProfilePictureChange}
-                            className={`${
-                                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-50"
-                            } w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         />
                     </div>
 
