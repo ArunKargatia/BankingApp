@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const backendUrl = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: 'https://bankingapp-jpot.onrender.com/',
 })
 
 export default backendUrl;
