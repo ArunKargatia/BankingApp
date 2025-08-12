@@ -1,16 +1,16 @@
 package com.ak.BankingApp.controller;
 
 import com.ak.BankingApp.dto.AccountAmountDTO;
-import com.ak.BankingApp.dto.TransactionDTO;
 import com.ak.BankingApp.dto.TransferDTO;
 import com.ak.BankingApp.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/transaction")
@@ -40,13 +40,4 @@ public class TransactionController {
                 .body("Transfer Successfull.");
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<TransactionDTO>> getAllTransactions(){
-        return ResponseEntity.ok(transactionService.getAllTransaction());
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id){
-        return ResponseEntity.ok(transactionService.getTransactionById(id));
-    }
 }

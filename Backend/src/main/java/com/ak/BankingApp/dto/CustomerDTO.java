@@ -18,6 +18,7 @@ public class CustomerDTO {
     private String profilePicture;
     private LocalDate dateOfBirth;
     private String address;
+    private String role;
     private LocalDateTime createdAt;
 
 }

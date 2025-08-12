@@ -41,6 +41,9 @@ public class Customer {
     @Column(name = "address")
     private String address;
 
+    @Column(nullable = false)
+    private String role;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Account> accounts;
 

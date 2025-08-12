@@ -156,53 +156,29 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDTO> getAllTransaction() {
+    public List<TransactionDTO> showMyTransactions() {
         String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
 
         List<Account> accounts = accountRepository.findByCustomerId(customerId);
+
         if (accounts.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No accounts found for this customer.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No accounts found for customer ID: " + customerId);
         }
 
         List<Long> accountIds = accounts.stream()
-                                    .map(Account::getId)
-                                    .toList();
+                .map(Account::getId)
+                .toList();
 
-        List<Transaction> transactions = transactionRepository.findDistinctByAccountIdInOrTargetAccountIdIn(accountIds, accountIds);
+        List<Transaction> transactions = transactionRepository.findByAccount_IdIn(accountIds);
+
+        if (transactions.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No transactions found for your accounts.");
+        }
+
         return transactions.stream()
                 .map(TransactionMapper::toDTO)
                 .toList();
-    }
-
-    @Override
-    public TransactionDTO getTransactionById(Long id) {
-        String token = extractTokenFromSecurityContext();
-        Long customerId = jwtService.extractCustomerId(token);
-
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found."));
-
-        if (!isCustomerInTransaction(transaction, customerId)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized: You are not part of this transaction.");
-        }
-
-        return TransactionMapper.toDTO(transaction);
-    }
-
-    private boolean isCustomerInTransaction(Transaction transaction, Long customerId){
-        if (transaction.getAccount().getCustomer().getId().equals(customerId)){
-            return true;
-        }
-
-        if (transaction.getTargetAccountId() != null) {
-            return accountRepository.findById(transaction.getTargetAccountId())
-                    .map(Account::getCustomer)
-                    .map(customer -> customer.getId().equals(customerId))
-                    .orElse(false);
-        }
-
-        return false;
     }
 
     private String extractTokenFromSecurityContext() {

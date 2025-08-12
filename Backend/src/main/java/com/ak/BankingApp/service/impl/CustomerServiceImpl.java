@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -61,21 +59,18 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setUserName(registerDto.getUserName());
         customer.setPhone(registerDto.getPhone());
         customer.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        customer.setRole("USER");
 
         customerRepository.save(customer);
     }
 
     @Override
-    public List<CustomerDTO> getAllCustomers() {
-        return customerRepository.findAll().stream()
-                .map(CustomerMapper::toDTO)
-                .toList();
-    }
+    public CustomerDTO viewMyProfile() {
+        String token = extractTokenFromSecurityContext();
+        Long customerId = jwtService.extractCustomerId(token);
 
-    @Override
-    public CustomerDTO getCustomerById(Long id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + id));
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
 
         return CustomerMapper.toDTO(customer);
     }
@@ -142,7 +137,7 @@ public class CustomerServiceImpl implements CustomerService {
             );
 
             if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(customer.getId(), customer.getEmail());
+                return jwtService.generateToken(customer.getId(), customer.getEmail(), customer.getRole());
             } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
             }

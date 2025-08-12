@@ -40,8 +40,8 @@ public class SecurityConfig {
                     .csrf(customizer -> customizer.disable())
                     .authorizeHttpRequests(request -> request
                             .requestMatchers("/public/**").permitAll()
-                            .requestMatchers("/profile_pictures/**").permitAll()
-                            .anyRequest().authenticated())
+                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                            .anyRequest().hasAnyRole("ADMIN", "USER"))
                     .exceptionHandling(ex -> ex
                             .authenticationEntryPoint(customAuthenticationEntryPoint())
                             .accessDeniedHandler(customAccessDeniedHandler()))

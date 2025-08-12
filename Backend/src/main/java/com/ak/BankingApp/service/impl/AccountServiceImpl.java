@@ -59,34 +59,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountDTO> getAllAccounts() {
-        String token = extractTokenFromSecurityContext();
-        Long customerId = jwtService.extractCustomerId(token);
-
-        customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
-
-        return accountRepository.findByCustomerId(customerId).stream()
-                .map(AccountMapper::toDTO)
-                .toList();
-    }
-
-    @Override
-    public AccountDTO getAccountById(Long id) {
-        String token = extractTokenFromSecurityContext();
-        Long customerId = jwtService.extractCustomerId(token);
-
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found with ID: " + id));
-
-        if (!account.getCustomer().getId().equals(customerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access to this account by customer ID: " + customerId);
-        }
-
-        return AccountMapper.toDTO(account);
-    }
-
-    @Override
     public void deleteAccount(Long id) {
         String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
@@ -98,6 +70,22 @@ public class AccountServiceImpl implements AccountService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access to this account by customer ID: " + customerId);        }
 
         accountRepository.delete(account);
+    }
+
+    @Override
+    public List<AccountDTO> getMyAccounts() {
+        String token = extractTokenFromSecurityContext();
+        Long customerId = jwtService.extractCustomerId(token);
+
+        List<Account> accounts = accountRepository.findByCustomerId(customerId);
+
+        if (accounts.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No accounts found for customer ID: " + customerId);
+        }
+
+        return accounts.stream()
+                .map(AccountMapper::toDTO)
+                .toList();
     }
 
     private String extractTokenFromSecurityContext() {

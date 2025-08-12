@@ -8,5 +8,6 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findDistinctByAccountIdInOrTargetAccountIdIn(List<Long> accountIds, List<Long> targetAccountIds);
+    List<Transaction> findByAccount_IdIn(List<Long> accountIds);
 
 }

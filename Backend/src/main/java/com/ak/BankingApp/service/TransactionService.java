@@ -11,6 +11,6 @@ public interface TransactionService {
     void createDeposit(AccountAmountDTO accountAmountDto);
     void createWithdrawal(AccountAmountDTO accountAmountDto);
     void transferFunds(TransferDTO transferDto);
-    List<TransactionDTO> getAllTransaction();
-    TransactionDTO getTransactionById(Long id);
+    List<TransactionDTO> showMyTransactions();
+
 }

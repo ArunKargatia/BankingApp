@@ -7,24 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
-
-    @GetMapping
-    public ResponseEntity<List<CustomerDTO>> getAllCustomer(){
-        return ResponseEntity.ok(customerService.getAllCustomers());
-    }
-
-    @GetMapping("/id/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id){
-        return ResponseEntity.ok(customerService.getCustomerById(id));
-    }
 
     @PutMapping("id/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id,
