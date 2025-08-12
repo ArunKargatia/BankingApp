@@ -1,11 +1,13 @@
 package com.ak.BankingApp.config;
 
-import com.ak.BankingApp.service.JWTService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,29 +27,42 @@ public class JwtFilter extends OncePerRequestFilter {
     private MyUserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String userName = null;
-        Long customerId = null;
+        final String authHeader = request.getHeader("Authorization");
+        final String token;
+        final String email;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")){
-            token = authHeader.substring(7);
-            userName = jwtService.extractUserName(token);
-            customerId = jwtService.extractCustomerId(token);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        if (userName != null && customerId != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        try{
+            token = authHeader.substring(7);
+            email = jwtService.extractEmail(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            if (jwtService.validateToken(token, userDetails)){
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userName, customerId, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.validateToken(token)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (ExpiredJwtException e) {
+            throw new BadCredentialsException("JWT token has expired");
+        } catch (JwtException e) {
+            throw new BadCredentialsException("Invalid JWT token");
         }
         filterChain.doFilter(request, response);
     }
 }
+

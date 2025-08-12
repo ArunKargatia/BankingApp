@@ -1,9 +1,9 @@
 package com.ak.BankingApp.config;
 
 import com.ak.BankingApp.entity.Customer;
-import com.ak.BankingApp.entity.CustomerPrincipal;
 import com.ak.BankingApp.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,14 +16,14 @@ public class MyUserDetailsService implements UserDetailsService {
     private CustomerRepository customerRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        Customer customer = customerRepository.findByUserName(username);
-        if (customer == null){
-            System.out.println("Customer not found");
-            throw new UsernameNotFoundException("Customer not found.");
-        }
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Customer not found."));
 
-        return new CustomerPrincipal(customer);
+        return User.builder()
+                .username(customer.getEmail())
+                .password(customer.getPassword())
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.ak.BankingApp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -43,7 +42,6 @@ public class Customer {
     private String address;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
     private List<Account> accounts;
 
     @Column(name = "created_at", nullable = false, updatable = false)   

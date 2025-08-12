@@ -1,6 +1,7 @@
 package com.ak.BankingApp.entity;
 
 import com.ak.BankingApp.enums.TransactionType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,20 +18,6 @@ public class Transaction {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Column(name = "sender_account_number", nullable = false, length = 20)
-    private String senderAccountNumber;
-
-    @Column(name = "receiver_account_number", nullable = false, length = 20)
-    private String receiverAccountNumber;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sender_account_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transaction_sender_account"))
-    private Account senderAccount;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "receiver_account_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transaction_receiver_account"))
-    private Account receiverAccount;
-
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
@@ -43,4 +30,13 @@ public class Transaction {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transaction_account"))
+    @JsonIgnore
+    private Account account;
+
+    @Column(name = "target_account_id")
+    private Long targetAccountId;
+
 }

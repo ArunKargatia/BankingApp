@@ -1,31 +1,37 @@
 package com.ak.BankingApp.service.impl;
 
-import com.ak.BankingApp.entity.Account;
+import com.ak.BankingApp.config.JWTService;
+import com.ak.BankingApp.dto.CustomerDTO;
+import com.ak.BankingApp.dto.RegisterDTO;
+import com.ak.BankingApp.dto.SignInDTO;
 import com.ak.BankingApp.entity.Customer;
-import com.ak.BankingApp.repository.AccountRepository;
+import com.ak.BankingApp.mapper.CustomerMapper;
 import com.ak.BankingApp.repository.CustomerRepository;
-import com.ak.BankingApp.service.AccountService;
+import com.ak.BankingApp.service.CloudinaryService;
 import com.ak.BankingApp.service.CustomerService;
-import com.ak.BankingApp.service.JWTService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
-
-    @Autowired
-    private AccountRepository accountRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -36,82 +42,133 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Override
-    public Customer createCustomer(Customer customer) {
-        if (customer.getAccounts() != null) {
-            for (Account account : customer.getAccounts()) {
-                account.setCustomer(customer);
-            }
+    public void createCustomer(RegisterDTO registerDto) {
+        if (customerRepository.existsByUserName(registerDto.getUserName())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken");
         }
-        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-        return customerRepository.save(customer);
-    }
 
-    @Override
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
-    }
-
-    @Override
-    public Customer getCustomerById(Long id) {
-        return customerRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public Customer updateCustomer(Long id, Customer updatedCustomer) {
-        Optional<Customer> customer = customerRepository.findById(id);
-        if (customer.isPresent()) {
-            Customer existingCustomer = customer.get();
-
-            if (updatedCustomer.getName() != null) existingCustomer.setName(updatedCustomer.getName());
-            if (updatedCustomer.getEmail() != null) existingCustomer.setEmail(updatedCustomer.getEmail());
-            if (updatedCustomer.getUserName() != null) existingCustomer.setUserName(updatedCustomer.getUserName());
-            if (updatedCustomer.getPassword() != null) existingCustomer.setPassword(passwordEncoder.encode(updatedCustomer.getPassword()));
-            if (updatedCustomer.getPhone() != null) existingCustomer.setPhone(updatedCustomer.getPhone());
-            if (updatedCustomer.getAddress() != null) existingCustomer.setAddress(updatedCustomer.getAddress());
-            if (updatedCustomer.getDateOfBirth() != null) existingCustomer.setDateOfBirth(updatedCustomer.getDateOfBirth());
-
-            if (updatedCustomer.getAccounts() != null) {
-                for (Account account : updatedCustomer.getAccounts()) {
-                    account.setCustomer(existingCustomer);
-                    accountRepository.save(account);
-                }
-            }
-            return customerRepository.save(existingCustomer);
-        } else {
-            return null;
+        if (customerRepository.existsByEmail(registerDto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
+
+        Customer customer = new Customer();
+        customer.setName(registerDto.getName());
+        customer.setEmail(registerDto.getEmail());
+        customer.setUserName(registerDto.getUserName());
+        customer.setPhone(registerDto.getPhone());
+        customer.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        customerRepository.save(customer);
     }
 
     @Override
-    public void updateProfilePicture(Long id, String profilePicturePath) {
-        Optional<Customer> customer = customerRepository.findById(id);
-        if (customer.isPresent()) {
-            Customer existingCustomer = customer.get();
-            existingCustomer.setProfilePicture(profilePicturePath);
-            customerRepository.save(existingCustomer);
+    public List<CustomerDTO> getAllCustomers() {
+        return customerRepository.findAll().stream()
+                .map(CustomerMapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    public CustomerDTO getCustomerById(Long id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + id));
+
+        return CustomerMapper.toDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO updateCustomer(Long id, CustomerDTO updatedCustomerDto) {
+        Customer existingCustomer  = customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + id));
+
+        if (updatedCustomerDto.getName() != null) existingCustomer.setName(updatedCustomerDto.getName());
+        if (updatedCustomerDto.getEmail() != null) existingCustomer.setEmail(updatedCustomerDto.getEmail());
+        if (updatedCustomerDto.getUserName() != null) existingCustomer.setUserName(updatedCustomerDto.getUserName());
+        if (updatedCustomerDto.getPhone() != null) existingCustomer.setPhone(updatedCustomerDto.getPhone());
+        if (updatedCustomerDto.getAddress() != null) existingCustomer.setAddress(updatedCustomerDto.getAddress());
+        if (updatedCustomerDto.getDateOfBirth() != null) existingCustomer.setDateOfBirth(updatedCustomerDto.getDateOfBirth());
+
+        Customer savedCustomer = customerRepository.save(existingCustomer);
+        return CustomerMapper.toDTO(savedCustomer);
+    }
+
+    @Override
+    public String updateProfilePicture(MultipartFile file) {
+        try {
+            String token = extractTokenFromSecurityContext();
+            Long customerId = jwtService.extractCustomerId(token);
+
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+
+            String oldImageUrl = customer.getProfilePicture();
+            String newImageUrl = cloudinaryService.uploadImage(file);
+
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                cloudinaryService.deleteImage(oldImageUrl);
+            }
+
+            customer.setProfilePicture(newImageUrl);
+            customerRepository.save(customer);
+
+            return "Profile picture updated successfully: " + newImageUrl;
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Image upload failed: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error: " + e.getMessage());
         }
     }
 
     @Override
     public void deleteCustomer(Long id) {
-        customerRepository.deleteById(id);
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + id));
+
+        customerRepository.delete(customer);
     }
 
     @Override
-    public String verify(Customer customer) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(customer.getUserName(), customer.getPassword()));
-        if (authentication.isAuthenticated()) {
+    public String verify(SignInDTO request) {
+        try{
+            Customer customer = customerRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with username: " + request.getEmail()));
 
-            Customer customerFromDB = customerRepository.findByUserName(customer.getUserName());
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-            if (customerFromDB != null) {
-                Long customerId = customerFromDB.getId();
-                return jwtService.generateToken(customer.getUserName(), customerId);
+            if (authentication.isAuthenticated()) {
+                return jwtService.generateToken(customer.getId(), customer.getEmail());
             } else {
-                return "Customer not found.";
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
             }
+        }  catch (UsernameNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authentication error: " + e.getMessage());
         }
-        return "Authentication Failed";
+    }
+
+    private String extractTokenFromSecurityContext() {
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        if (attributes == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No request context available.");
+        }
+
+        HttpServletRequest request = attributes.getRequest();
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header.");        }
+
+        return authHeader.substring(7);
     }
 }

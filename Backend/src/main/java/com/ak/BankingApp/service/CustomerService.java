@@ -1,15 +1,18 @@
 package com.ak.BankingApp.service;
 
-import com.ak.BankingApp.entity.Customer;
+import com.ak.BankingApp.dto.CustomerDTO;
+import com.ak.BankingApp.dto.RegisterDTO;
+import com.ak.BankingApp.dto.SignInDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface CustomerService {
-    Customer createCustomer(Customer customer);
-    List<Customer> getAllCustomers();
-    Customer getCustomerById(Long id);
-    Customer updateCustomer(Long id, Customer updatedCustomer);
+    void createCustomer(RegisterDTO registerDto);
+    List<CustomerDTO> getAllCustomers();
+    CustomerDTO getCustomerById(Long id);
+    CustomerDTO updateCustomer(Long id, CustomerDTO updatedCustomerDto);
     void deleteCustomer(Long id);
-    String verify(Customer customer);
-    void updateProfilePicture(Long id, String profilePicturePath);
+    String verify(SignInDTO request);
+    String updateProfilePicture(MultipartFile file);
 }

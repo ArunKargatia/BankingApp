@@ -1,5 +1,7 @@
 package com.ak.BankingApp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +15,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +42,9 @@ public class SecurityConfig {
                             .requestMatchers("/public/**").permitAll()
                             .requestMatchers("/profile_pictures/**").permitAll()
                             .anyRequest().authenticated())
+                    .exceptionHandling(ex -> ex
+                            .authenticationEntryPoint(customAuthenticationEntryPoint())
+                            .accessDeniedHandler(customAccessDeniedHandler()))
                     .httpBasic(Customizer.withDefaults())
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -47,7 +57,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173", "https://bankingapp-wine.vercel.app")
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
@@ -71,5 +81,33 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+            error.put("error", "Unauthorized");
+            error.put("message", authException.getMessage());
+            error.put("path", request.getRequestURI());
+            new ObjectMapper().writeValue(response.getOutputStream(), error);
+        };
+    }
+
+    @Bean
+    public AccessDeniedHandler customAccessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", HttpServletResponse.SC_FORBIDDEN);
+            error.put("error", "Forbidden");
+            error.put("message", accessDeniedException.getMessage());
+            error.put("path", request.getRequestURI());
+            new ObjectMapper().writeValue(response.getOutputStream(), error);
+        };
     }
 }

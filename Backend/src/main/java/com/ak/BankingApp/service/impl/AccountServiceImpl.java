@@ -1,16 +1,24 @@
 package com.ak.BankingApp.service.impl;
 
+import com.ak.BankingApp.config.JWTService;
+import com.ak.BankingApp.dto.AccountDTO;
 import com.ak.BankingApp.entity.Account;
 import com.ak.BankingApp.entity.Customer;
+import com.ak.BankingApp.mapper.AccountMapper;
 import com.ak.BankingApp.repository.AccountRepository;
 import com.ak.BankingApp.repository.CustomerRepository;
 import com.ak.BankingApp.service.AccountService;
-import com.ak.BankingApp.service.JWTService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -25,58 +33,87 @@ public class AccountServiceImpl implements AccountService {
     private JWTService jwtService;
 
     @Override
-    public Account createAccount(String token, Account account) {
+    @Transactional
+    public AccountDTO createAccount() {
+        String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isPresent()){
-            account.setCustomer(customer.get());
-            return accountRepository.save(account);
-        } else {
-            throw new RuntimeException("Customer not found with Id : "+customerId);
-        }
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+
+        Account account = new Account();
+        account.setAccountNumber(generateUniqueAccountNumber());
+        account.setBalance(BigDecimal.ZERO);
+        account.setCustomer(customer);
+
+        accountRepository.save(account);
+        return AccountMapper.toDTO(account);
+    }
+
+    private String generateUniqueAccountNumber() {
+        String accountNumber;
+        do {
+            accountNumber = String.valueOf(1000000000L + (long) (Math.random() * 9000000000L));
+        } while (accountRepository.existsByAccountNumber(accountNumber));
+        return accountNumber;
     }
 
     @Override
-    public List<Account> getAllAccounts(String token) {
+    public List<AccountDTO> getAllAccounts() {
+        String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
-        return accountRepository.findByCustomerId(customerId);
+
+        customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found with ID: " + customerId));
+
+        return accountRepository.findByCustomerId(customerId).stream()
+                .map(AccountMapper::toDTO)
+                .toList();
     }
 
     @Override
-    public Account getAccountById(Long id, String token) {
+    public AccountDTO getAccountById(Long id) {
+        String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && account.get().getCustomer().getId().equals(customerId)){
-            return account.orElse(null);
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found with ID: " + id));
+
+        if (!account.getCustomer().getId().equals(customerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access to this account by customer ID: " + customerId);
         }
-        throw new RuntimeException("Account not found or now owned by customer with Id : "+customerId);
+
+        return AccountMapper.toDTO(account);
     }
 
     @Override
-    public Account updateAccount(Long id, Account updatedAccount, String token) {
+    public void deleteAccount(Long id) {
+        String token = extractTokenFromSecurityContext();
         Long customerId = jwtService.extractCustomerId(token);
-        Account existingAccount = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found with Id: "+ id));
 
-        if (!existingAccount.getCustomer().getId().equals(customerId)) {
-            throw new RuntimeException("Unauthorized to update account ID: " + id);
-        }
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found with ID: " + id));
 
-        existingAccount.setAccountNumber(updatedAccount.getAccountNumber());
-        existingAccount.setAccountType(updatedAccount.getAccountType());
-        existingAccount.setBalance(updatedAccount.getBalance());
+        if (!account.getCustomer().getId().equals(customerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access to this account by customer ID: " + customerId);        }
 
-        return accountRepository.save(existingAccount);
+        accountRepository.delete(account);
     }
 
-    @Override
-    public void deleteAccount(Long id, String token) {
-        Long customerId = jwtService.extractCustomerId(token);
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && account.get().getCustomer().getId().equals(customerId)){
-            accountRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Account not found or now owned by customer with Id : "+customerId);
+    private String extractTokenFromSecurityContext() {
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        if (attributes == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No request context available.");
         }
+
+        HttpServletRequest request = attributes.getRequest();
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or missing Authorization header.");        }
+
+        return authHeader.substring(7);
     }
 }
