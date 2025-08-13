@@ -35,4 +35,4 @@ build/
 .vscode/
 
 .env
-application.propeties
+application.properties
