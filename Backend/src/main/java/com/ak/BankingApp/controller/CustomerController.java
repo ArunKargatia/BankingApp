@@ -14,6 +14,11 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    @GetMapping
+    public ResponseEntity<CustomerDTO> getMyProfile(){
+        return ResponseEntity.ok(customerService.viewMyProfile());
+    }
+
     @PutMapping("id/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id,
                                             @RequestBody CustomerDTO updatedCustomerDto){

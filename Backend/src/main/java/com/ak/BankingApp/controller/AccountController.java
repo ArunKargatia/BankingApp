@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/account")
 public class AccountController {
@@ -18,6 +20,11 @@ public class AccountController {
     public ResponseEntity<AccountDTO> addAccount(){
         AccountDTO newAccount = accountService.createAccount();
         return ResponseEntity.status(HttpStatus.CREATED).body(newAccount);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<AccountDTO>> getMyAccounts(){
+        return ResponseEntity.ok(accountService.getMyAccounts());
     }
 
     @DeleteMapping("/id/{id}")

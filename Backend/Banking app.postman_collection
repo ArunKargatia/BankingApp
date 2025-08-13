@@ -49,20 +49,32 @@
 					"response": []
 				},
 				{
-					"name": "get all customers",
+					"name": "get my profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2azE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1MDgwMTQ1LCJleHAiOjE3NTUwOTgxNDV9.vCeH4z08ORfeQAYi0XRcv02L5lLOn4GXGuIOjXkOXJQ",
 									"type": "string"
 								}
 							]
 						},
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"address\" : \"Ahmedabad\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "localhost:8080/customer",
 							"host": [
@@ -71,36 +83,6 @@
 							"port": "8080",
 							"path": [
 								"customer"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get customer by id",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8080/customer/id/1",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"customer",
-								"id",
-								"1"
 							]
 						}
 					},
@@ -218,7 +200,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"arun\",\r\n    \"email\": \"ak18@gmail.com\",\r\n    \"userName\": \"arunk\",\r\n    \"password\": \"ak@135841\",\r\n    \"phone\" : \"6353290888\"\r\n}",
+							"raw": "{\r\n    \"name\": \"Virat Kohli\",\r\n    \"email\": \"vk18@gmail.com\",\r\n    \"userName\": \"virat\",\r\n    \"password\": \"vk@181818\",\r\n    \"phone\" : \"9568569856\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -249,7 +231,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"ak18@gmail.com\",\r\n    \"password\": \"ak@135841\"\r\n}",
+							"raw": "// {\r\n//     \"email\": \"ak18@gmail.com\",\r\n//     \"password\": \"ak@135841\"\r\n// }\r\n\r\n{\r\n    \"email\": \"vk18@gmail.com\",\r\n    \"password\": \"vk@181818\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -275,65 +257,6 @@
 		{
 			"name": "Account APIs",
 			"item": [
-				{
-					"name": "get all accounts",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8080/account/all",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"account",
-								"all"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get account by id",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8080/account/id/1",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"account",
-								"id",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "delete account",
 					"request": {
@@ -365,6 +288,34 @@
 					"response": []
 				},
 				{
+					"name": "get my accounts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2azE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1MDgwMTQ1LCJleHAiOjE3NTUwOTgxNDV9.vCeH4z08ORfeQAYi0XRcv02L5lLOn4GXGuIOjXkOXJQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/account",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "create account",
 					"request": {
 						"auth": {
@@ -372,7 +323,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2azE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1MDgwMTQ1LCJleHAiOjE3NTUwOTgxNDV9.vCeH4z08ORfeQAYi0XRcv02L5lLOn4GXGuIOjXkOXJQ",
 									"type": "string"
 								}
 							]
@@ -398,64 +349,6 @@
 			"name": "Transaction APIs",
 			"item": [
 				{
-					"name": "get all transactions",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8080/transaction/all",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"transaction",
-								"all"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get transaction by id",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:8080/transaction/1",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"transaction",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "deposit",
 					"request": {
 						"auth": {
@@ -463,7 +356,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsImlhdCI6MTc1NDk5MTI1OCwiZXhwIjoxNzU1MDA5MjU4fQ.L4vQrQYexA2l6OT9QkvMPs5tNG817Z9GezOZ4aih180",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2azE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1MDgwMTQ1LCJleHAiOjE3NTUwOTgxNDV9.vCeH4z08ORfeQAYi0XRcv02L5lLOn4GXGuIOjXkOXJQ",
 									"type": "string"
 								}
 							]
@@ -472,7 +365,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"accountNumber\" : \"2144282709\",\r\n    \"amount\" : 50000\r\n}",
+							"raw": "{\r\n    \"accountNumber\" : \"1884606845\",\r\n    \"amount\" : 10000\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -488,6 +381,46 @@
 							"path": [
 								"transaction",
 								"deposit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get my transactions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2azE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1MDgwMTQ1LCJleHAiOjE3NTUwOTgxNDV9.vCeH4z08ORfeQAYi0XRcv02L5lLOn4GXGuIOjXkOXJQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accountNumber\" : \"2144282709\",\r\n    \"amount\" : 50000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/transaction",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"transaction"
 							]
 						}
 					},
@@ -564,6 +497,191 @@
 							"path": [
 								"transaction",
 								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin apis",
+			"item": [
+				{
+					"name": "get all customers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/customer/all",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"customer",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get customer by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/customer/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"customer",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all accounts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/account/all",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"account",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get account by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/account/3",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"account",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all transactions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/transaction/all",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"transaction",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get transaction by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhazE4QGdtYWlsLmNvbSIsImN1c3RvbWVySWQiOjEsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc1NTA3OTc1NywiZXhwIjoxNzU1MDk3NzU3fQ._4bJE2TvGW9YzkQhtZwrm-c4-df81YxwoSKngn7fmXw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/admin/transaction/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"admin",
+								"transaction",
+								"1"
 							]
 						}
 					},
